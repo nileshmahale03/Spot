@@ -16,6 +16,10 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     @IBOutlet weak var mapTypeSegmentedControl: UISegmentedControl!
     @IBOutlet weak var searchText: UITextField!
     
+    var lastLocation : CLLocation?
+    var isCentered: Bool = true
+    
+    
     let locationManager = CLLocationManager()
     var matchingItems: [MKMapItem] = [MKMapItem]()
     
@@ -51,9 +55,33 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let location = locations.last
         let center = CLLocationCoordinate2D(latitude: location!.coordinate.latitude, longitude: location!.coordinate.longitude)
-        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2))
-        self.mapView.setRegion(region, animated: true)
-        self.locationManager.stopUpdatingLocation()
+        
+        if (self.lastLocation == nil){
+            let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2))
+            self.mapView.setRegion(region, animated: false)
+            self.lastLocation = location
+        }
+        else if (self.lastLocation!.distanceFromLocation(location!) > 0) {
+            print(self.lastLocation!.distanceFromLocation(location!))
+            let region = MKCoordinateRegion(center: center, span: self.mapView.region.span)
+            
+            self.mapView.setRegion(region, animated: false)
+            self.lastLocation = location
+            
+            
+            
+            let notification:UILocalNotification = UILocalNotification()
+            notification.category = "FIRST_CATEGORY"
+            notification.alertBody = "Hi, I am a Notification"
+            notification.fireDate = NSDate(timeIntervalSinceNow: 3) //will fire 3 seconds after app is launched, as opposed to hardcoding a date
+            
+            UIApplication.sharedApplication().scheduleLocalNotification(notification)
+        }
+        
+
+        
+
+//        self.locationManager.stopUpdatingLocation()
     }
     
     //CLLocationManagerDelegate Methods:

@@ -15,7 +15,7 @@ protocol CategoryPickerDelegate: class {
 
 class CategoryTableViewController: UITableViewController {
     
-    var managedObjectContext: NSManagedObjectContext!
+//    var managedObjectContext: NSManagedObjectContext!
     var category = [Category]()
 
     // for category select mode
@@ -36,7 +36,7 @@ class CategoryTableViewController: UITableViewController {
         let fetchRequest = NSFetchRequest(entityName: "Category")
         
         do {
-            if let results = try managedObjectContext.executeFetchRequest(fetchRequest) as? [Category] {
+            if let results = try DataSource.sharedInstance.managedObjectContext.executeFetchRequest(fetchRequest) as? [Category] {
                 category = results
                 tableView.reloadData()
             }
@@ -82,8 +82,8 @@ class CategoryTableViewController: UITableViewController {
             if let poiTableViewController = storyboard?.instantiateViewControllerWithIdentifier("POI") as? POITableViewController {
                 let someCategory = category[indexPath.row]
                 
-                poiTableViewController.managedObjectContext = managedObjectContext
-                poiTableViewController.selectedCategory = someCategory
+//                poiTableViewController.managedObjectContext = DataSource.sharedInstance.managedObjectContext
+//                poiTableViewController.selectedCategory = someCategory
                 navigationController?.pushViewController(poiTableViewController, animated: true)
             }
         }
@@ -100,7 +100,7 @@ class CategoryTableViewController: UITableViewController {
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
             let someCategory = category[indexPath.row]
-            managedObjectContext.deleteObject(someCategory)
+            DataSource.sharedInstance.managedObjectContext.deleteObject(someCategory)
             
             reloadData()
         }
@@ -112,10 +112,10 @@ class CategoryTableViewController: UITableViewController {
         
         let addAction = UIAlertAction(title: "Add", style: .Default) { (action) -> Void in
             if let textField = alert.textFields?[0],
-                categoryEntity = NSEntityDescription.entityForName("Category", inManagedObjectContext: self.managedObjectContext),
+                categoryEntity = NSEntityDescription.entityForName("Category", inManagedObjectContext: DataSource.sharedInstance.managedObjectContext),
                 text = textField.text where !text.isEmpty {
                     
-                    let newCategory = Category(entity: categoryEntity, insertIntoManagedObjectContext: self.managedObjectContext)
+                    let newCategory = Category(entity: categoryEntity, insertIntoManagedObjectContext: DataSource.sharedInstance.managedObjectContext)
                     newCategory.name = text
                     
                     self.reloadData()

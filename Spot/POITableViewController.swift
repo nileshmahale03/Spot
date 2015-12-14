@@ -13,10 +13,10 @@ import Social
 
 class POITableViewController: UITableViewController {
     
-    var managedObjectContext: NSManagedObjectContext!
-    var poi = [POI] ()
+
+
     
-    var selectedCategory: Category?
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,7 +32,7 @@ class POITableViewController: UITableViewController {
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
-        reloadData()
+        DataSource.sharedInstance.reloadData()
         tableView.reloadData()
     }
     
@@ -40,23 +40,7 @@ class POITableViewController: UITableViewController {
         tableView.reloadData()
     }
 
-    func reloadData() {
-        if let selectedCategory = selectedCategory {
-            if let poiCategories = selectedCategory.pois.allObjects as? [POI] {
-               poi = poiCategories
-            }
-        } else {
-            let fetchRequest = NSFetchRequest(entityName: "POI")
-            
-            do {
-                if let results = try managedObjectContext.executeFetchRequest(fetchRequest) as? [POI] {
-                    poi = results
-                }
-            } catch {
-                fatalError("There was an error fetching a list of POI's")
-            }
-        }
-    }
+    
         
     // MARK: - Table view data source
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -64,13 +48,13 @@ class POITableViewController: UITableViewController {
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return poi.count
+        return DataSource.sharedInstance.poi.count
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> POITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("POICell", forIndexPath: indexPath) as! POITableViewCell
         
-        let somePOI = poi[indexPath.row]
+        let somePOI = DataSource.sharedInstance.poi[indexPath.row]
         
         cell.nameLabel.text = somePOI.name
         cell.phoneLabel.text = somePOI.phone
@@ -87,16 +71,7 @@ class POITableViewController: UITableViewController {
     // MARK: - Delete feature
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
-            let somePOI = poi[indexPath.row]
-            print("\(indexPath.row)")
-            managedObjectContext.deleteObject(somePOI)
-            
-            do {
-                try managedObjectContext.save()
-            } catch {
-                print("Error saving the managed object context!")
-            }
-            reloadData()
+            DataSource.sharedInstance.deletePOI(indexPath.row)
             tableView.reloadData()
         }
     }
@@ -119,7 +94,7 @@ class POITableViewController: UITableViewController {
                         return
                 }
                 
-                let somePOI = self.poi[indexPath.row]
+                let somePOI = DataSource.sharedInstance.poi[indexPath.row]
                 let tweetComposer = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
                 tweetComposer.setInitialText(somePOI.name)
                 
@@ -138,7 +113,7 @@ class POITableViewController: UITableViewController {
                         return
                 }
                 
-                let somePOI = self.poi[indexPath.row]
+                let somePOI = DataSource.sharedInstance.poi[indexPath.row]
                 let facebookComposer = SLComposeViewController(forServiceType: SLServiceTypeFacebook)
                 facebookComposer.setInitialText(somePOI.name)
                 
@@ -157,16 +132,8 @@ class POITableViewController: UITableViewController {
 
         let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Delete", handler: {(action: UITableViewRowAction, indexPath:NSIndexPath) -> Void in
             
-            let somePOI = self.poi[indexPath.row]
-            print("\(indexPath.row)")
-            self.managedObjectContext.deleteObject(somePOI)
+            DataSource.sharedInstance.deletePOI(indexPath.row)
             
-            do {
-                try self.managedObjectContext.save()
-            } catch {
-                print("Error saving the managed object context!")
-            }
-            self.reloadData()
             tableView.reloadData()
         })
         
@@ -186,15 +153,15 @@ class POITableViewController: UITableViewController {
     //1. POIDetail 2. RouteView
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if let dest = segue.destinationViewController as? POIDetailTableViewController {
-            dest.managedObjectContext = managedObjectContext
+//            dest.managedObjectContext = managedObjectContext
             
             if let selectedIndexPath = tableView.indexPathForSelectedRow {
-                let somePOI = poi[selectedIndexPath.row]
+                let somePOI = DataSource.sharedInstance.poi[selectedIndexPath.row]
                 dest.poi = somePOI
             }
         } else if let dest = segue.destinationViewController as? RouteViewController {
             let indexPath: NSIndexPath = self.tableView.indexPathForCell(sender as! UITableViewCell)!
-            let somePOI : POI = poi[indexPath.row]
+            let somePOI : POI = DataSource.sharedInstance.poi[indexPath.row]
             let mapItem: MKMapItem = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: somePOI.latitude.doubleValue, longitude: somePOI.longitude.doubleValue), addressDictionary: nil))
             
             print(somePOI.name)

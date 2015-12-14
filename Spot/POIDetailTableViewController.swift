@@ -11,7 +11,7 @@ import CoreData
 
 class POIDetailTableViewController: UITableViewController {
     
-    var managedObjectContext: NSManagedObjectContext!
+//    var managedObjectContext: NSManagedObjectContext!
     var poi: POI?
     
     @IBOutlet weak var nameTextField: UITextField!
@@ -42,8 +42,8 @@ class POIDetailTableViewController: UITableViewController {
             poi.phone = phone
             poi.note = note
         } else if poi == nil {
-            if let name = nameTextField.text, phone = phoneTextField.text, note = noteTextField.text, entity = NSEntityDescription.entityForName("POI", inManagedObjectContext: managedObjectContext) where !name.isEmpty && !phone.isEmpty && !note.isEmpty {
-                poi = POI(entity: entity, insertIntoManagedObjectContext: managedObjectContext)
+            if let name = nameTextField.text, phone = phoneTextField.text, note = noteTextField.text, entity = NSEntityDescription.entityForName("POI", inManagedObjectContext: DataSource.sharedInstance.managedObjectContext) where !name.isEmpty && !phone.isEmpty && !note.isEmpty {
+                poi = POI(entity: entity, insertIntoManagedObjectContext: DataSource.sharedInstance.managedObjectContext)
                 poi?.name = name
                 poi?.phone = phone
                 poi?.note = note
@@ -51,7 +51,7 @@ class POIDetailTableViewController: UITableViewController {
         }
         
         do {
-            try managedObjectContext.save()
+            try DataSource.sharedInstance.managedObjectContext.save()
         } catch {
             print("Error saving the managed object context!")
         }
@@ -62,7 +62,7 @@ class POIDetailTableViewController: UITableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if indexPath.section == 1 && indexPath.row == 0 {
             if let categoryPicker = storyboard?.instantiateViewControllerWithIdentifier("Category") as? CategoryTableViewController {
-                categoryPicker.managedObjectContext = managedObjectContext
+//                categoryPicker.managedObjectContext = DataSource.sharedInstance.managedObjectContext
                 
                 categoryPicker.pickerDelegate = self
                 categoryPicker.selectedCategory = poi?.type
@@ -80,7 +80,7 @@ extension POIDetailTableViewController: CategoryPickerDelegate {
         poi?.type = category
         
         do {
-            try managedObjectContext.save()
+            try DataSource.sharedInstance.managedObjectContext.save()
         } catch {
             print("Error saving the managed object context!")
         }

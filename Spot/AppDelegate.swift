@@ -42,6 +42,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
         
+        //Actions
+        let firstAction:UIMutableUserNotificationAction = UIMutableUserNotificationAction()
+        firstAction.identifier = "FIRST_ACTION"
+        firstAction.title = "First Action"
+        
+        firstAction.activationMode = UIUserNotificationActivationMode.Background
+        firstAction.destructive = true
+        firstAction.authenticationRequired = false
+        
+        let secondAction:UIMutableUserNotificationAction = UIMutableUserNotificationAction()
+        secondAction.identifier = "SECOND_ACTION"
+        secondAction.title = "Second Action"
+        
+        secondAction.activationMode = UIUserNotificationActivationMode.Foreground
+        secondAction.destructive = false
+        secondAction.authenticationRequired = false
+        
+        let thirdAction:UIMutableUserNotificationAction = UIMutableUserNotificationAction()
+        thirdAction.identifier = "THIRD_ACTION"
+        thirdAction.title = "Third Action"
+        
+        thirdAction.activationMode = UIUserNotificationActivationMode.Background
+        thirdAction.destructive = false
+        thirdAction.authenticationRequired = false
+        
+        //Category
+        let firstCategory:UIMutableUserNotificationCategory = UIMutableUserNotificationCategory()
+        firstCategory.identifier = "FIRST_CATEGORY"
+        
+        firstCategory.setActions([firstAction, secondAction, thirdAction], forContext: UIUserNotificationActionContext.Default)
+        firstCategory.setActions([firstAction, secondAction], forContext: UIUserNotificationActionContext.Minimal)
+        
+        //NSSet of all our categories
+        let types:UIUserNotificationType = UIUserNotificationType([.Alert, .Badge, .Sound])
+        
+        let mySettings:UIUserNotificationSettings = UIUserNotificationSettings(forTypes: types, categories: Set(arrayLiteral: firstCategory))
+        
+        UIApplication.sharedApplication().registerUserNotificationSettings(mySettings)
+        
         return true
     }
     

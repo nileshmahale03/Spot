@@ -27,6 +27,7 @@
 		27DF83681C08F59500473C87 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27DF83671C08F59500473C87 /* MapViewController.swift */; };
 		27DF836C1C0925AD00473C87 /* ResultTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27DF836B1C0925AD00473C87 /* ResultTableViewController.swift */; };
 		27FD7CB81C1405F10018B0CE /* RouteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27FD7CB71C1405F10018B0CE /* RouteViewController.swift */; };
+		374A21C11C1E5CE200FB800B /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374A21C01C1E5CE200FB800B /* DataSource.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +53,7 @@
 		27DF83671C08F59500473C87 /* MapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		27DF836B1C0925AD00473C87 /* ResultTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultTableViewController.swift; sourceTree = "<group>"; };
 		27FD7CB71C1405F10018B0CE /* RouteViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteViewController.swift; sourceTree = "<group>"; };
+		374A21C01C1E5CE200FB800B /* DataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +107,7 @@
 				2709D3CA1C06B2E7001CA6FB /* LaunchScreen.storyboard */,
 				2709D3CD1C06B2E7001CA6FB /* Info.plist */,
 				2709D3C51C06B2E7001CA6FB /* Spot.xcdatamodeld */,
+				374A21C01C1E5CE200FB800B /* DataSource.swift */,
 			);
 			path = Spot;
 			sourceTree = "<group>";
@@ -199,6 +202,7 @@
 				27078D391C1CC05F003DE045 /* POITableViewCell.swift in Sources */,
 				27DF83641C0782DD00473C87 /* POI.swift in Sources */,
 				2709D3C71C06B2E7001CA6FB /* Spot.xcdatamodeld in Sources */,
+				374A21C11C1E5CE200FB800B /* DataSource.swift in Sources */,
 				2709D3BF1C06B2E7001CA6FB /* AppDelegate.swift in Sources */,
 				27DF83681C08F59500473C87 /* MapViewController.swift in Sources */,
 				27DF83631C0782DD00473C87 /* POI+CoreDataProperties.swift in Sources */,

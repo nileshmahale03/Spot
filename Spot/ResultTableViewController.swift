@@ -14,7 +14,7 @@ class ResultTableViewController: UITableViewController {
     
     var mapItems: [MKMapItem]!
     
-    var managedObjectContext = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
+//    var managedObjectContext = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,8 +44,8 @@ class ResultTableViewController: UITableViewController {
     //Heart Button
     @IBAction func heartPressedAction(sender: AnyObject) {
 
-        let entityDescription = NSEntityDescription.entityForName("POI", inManagedObjectContext: managedObjectContext)
-        let poi = POI(entity: entityDescription!, insertIntoManagedObjectContext: managedObjectContext)
+        let entityDescription = NSEntityDescription.entityForName("POI", inManagedObjectContext: DataSource.sharedInstance.managedObjectContext)
+        let poi = POI(entity: entityDescription!, insertIntoManagedObjectContext: DataSource.sharedInstance.managedObjectContext)
         let point: CGPoint = sender.convertPoint(CGPointZero, toView: self.tableView)
         let indexPath: NSIndexPath = self.tableView.indexPathForRowAtPoint(point)!
         let mapItem: MKMapItem = mapItems[indexPath.row]
@@ -60,7 +60,7 @@ class ResultTableViewController: UITableViewController {
         poi.note = "Click here to edit Note"
     
         do {
-            try managedObjectContext.save()
+            try DataSource.sharedInstance.managedObjectContext.save()
         } catch let error as NSError {
             print(error)
         }
