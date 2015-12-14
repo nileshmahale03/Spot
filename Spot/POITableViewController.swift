@@ -1,0 +1,222 @@
+//
+//  POITableViewController.swift
+//  Spot
+//
+//  Created by Nilesh Mahale on 11/25/15.
+//  Copyright © 2015 Code-Programming. All rights reserved.
+//
+
+import UIKit
+import CoreData
+import MapKit
+import Social
+
+class POITableViewController: UITableViewController {
+    
+    var managedObjectContext: NSManagedObjectContext!
+    var poi = [POI] ()
+    
+    var selectedCategory: Category?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        tableView.estimatedRowHeight = 90.0
+        tableView.rowHeight = UITableViewAutomaticDimension
+        
+        title = "POI"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addPOI:")
+        
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        reloadData()
+        tableView.reloadData()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        tableView.reloadData()
+    }
+
+    func reloadData() {
+        if let selectedCategory = selectedCategory {
+            if let poiCategories = selectedCategory.pois.allObjects as? [POI] {
+               poi = poiCategories
+            }
+        } else {
+            let fetchRequest = NSFetchRequest(entityName: "POI")
+            
+            do {
+                if let results = try managedObjectContext.executeFetchRequest(fetchRequest) as? [POI] {
+                    poi = results
+                }
+            } catch {
+                fatalError("There was an error fetching a list of POI's")
+            }
+        }
+    }
+        
+    // MARK: - Table view data source
+    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return 1
+    }
+
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return poi.count
+    }
+
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> POITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("POICell", forIndexPath: indexPath) as! POITableViewCell
+        
+        let somePOI = poi[indexPath.row]
+        
+        cell.nameLabel.text = somePOI.name
+        cell.phoneLabel.text = somePOI.phone
+        cell.notesLabel.text = somePOI.note
+        
+        return cell
+    }
+    
+    // MARK: - Activate delete
+    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
+    }
+    
+    // MARK: - Delete feature
+    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        if editingStyle == .Delete {
+            let somePOI = poi[indexPath.row]
+            print("\(indexPath.row)")
+            managedObjectContext.deleteObject(somePOI)
+            
+            do {
+                try managedObjectContext.save()
+            } catch {
+                print("Error saving the managed object context!")
+            }
+            reloadData()
+            tableView.reloadData()
+        }
+    }
+    
+    // MARK: - Delete & Share feature
+    override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+        
+        let shareAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Share", handler: {(action: UITableViewRowAction, indexPath:NSIndexPath) -> Void in
+        
+            let shareMenu = UIAlertController(title: nil, message: "Share using", preferredStyle: .ActionSheet)
+            
+            let twitterAction = UIAlertAction(title: "Twitter", style: UIAlertActionStyle.Default, handler: {(action) -> Void in
+            
+                guard SLComposeViewController.isAvailableForServiceType(SLServiceTypeTwitter)
+                    else {
+                        let alertMessage = UIAlertController(title: "Twitter Unavailable", message: "You haven't registered your Twitter account. Please go to Settings > Twitter to create one.", preferredStyle: .Alert)
+                        alertMessage.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
+                        self.presentViewController(alertMessage, animated: true, completion: nil)
+                        
+                        return
+                }
+                
+                let somePOI = self.poi[indexPath.row]
+                let tweetComposer = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
+                tweetComposer.setInitialText(somePOI.name)
+                
+                self.presentViewController(tweetComposer, animated: true, completion: nil)
+                
+            })
+            
+            let facebookAction = UIAlertAction(title: "Facebook", style: UIAlertActionStyle.Default, handler: {(action) -> Void in
+            
+                guard SLComposeViewController.isAvailableForServiceType(SLServiceTypeFacebook)
+                    else {
+                        let alertMessage = UIAlertController(title: "Facebook Unavailable", message: "You haven't registered your Facebook account. Please go to Settings > Facebook to create one.", preferredStyle: .Alert)
+                        alertMessage.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
+                        self.presentViewController(alertMessage, animated: true, completion: nil)
+                        
+                        return
+                }
+                
+                let somePOI = self.poi[indexPath.row]
+                let facebookComposer = SLComposeViewController(forServiceType: SLServiceTypeFacebook)
+                facebookComposer.setInitialText(somePOI.name)
+                
+                self.presentViewController(facebookComposer, animated: true, completion: nil)
+            
+            })
+            
+            let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil)
+            
+            shareMenu.addAction(twitterAction)
+            shareMenu.addAction(facebookAction)
+            shareMenu.addAction(cancelAction)
+            
+            self.presentViewController(shareMenu, animated: true, completion: nil)
+        })
+
+        let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Delete", handler: {(action: UITableViewRowAction, indexPath:NSIndexPath) -> Void in
+            
+            let somePOI = self.poi[indexPath.row]
+            print("\(indexPath.row)")
+            self.managedObjectContext.deleteObject(somePOI)
+            
+            do {
+                try self.managedObjectContext.save()
+            } catch {
+                print("Error saving the managed object context!")
+            }
+            self.reloadData()
+            tableView.reloadData()
+        })
+        
+        shareAction.backgroundColor = UIColor(red: 255.0/255.0, green: 166.0/255.0, blue: 51.0/255.0, alpha: 1.0)
+        deleteAction.backgroundColor = UIColor(red: 51.0/255.0, green: 51.0/255.0, blue: 51.0/255.0, alpha: 1.0)
+        
+        return [deleteAction, shareAction]
+    }
+    
+    // MARK: - Actions & Segues
+    
+    //+ Button
+    func addPOI(sender: AnyObject?) {
+        performSegueWithIdentifier("poiDetail", sender: self)
+    }
+    
+    //1. POIDetail 2. RouteView
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if let dest = segue.destinationViewController as? POIDetailTableViewController {
+            dest.managedObjectContext = managedObjectContext
+            
+            if let selectedIndexPath = tableView.indexPathForSelectedRow {
+                let somePOI = poi[selectedIndexPath.row]
+                dest.poi = somePOI
+            }
+        } else if let dest = segue.destinationViewController as? RouteViewController {
+            let indexPath: NSIndexPath = self.tableView.indexPathForCell(sender as! UITableViewCell)!
+            let somePOI : POI = poi[indexPath.row]
+            let mapItem: MKMapItem = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: somePOI.latitude.doubleValue, longitude: somePOI.longitude.doubleValue), addressDictionary: nil))
+            
+            print(somePOI.name)
+            
+            dest.destination = mapItem
+        }
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
